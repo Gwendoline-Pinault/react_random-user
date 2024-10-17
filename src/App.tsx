@@ -1,84 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
-import axios from 'axios';
+import { useFetch } from './hook/useFetch';
+import logo from './assets/loading.jpg';
 
 function App() {
 
-  type User = {
-    gender: string,
-    name: {
-      title: string,
-      first: string,
-      last: string
-    },
-    location: {
-      street: {
-        number: number,
-        name: string,
-      },
-      city: string,
-      state: string,
-      country: string,
-      postcode: string,
-      coordinates: {
-        latitude: string,
-        longitude: string
-      },
-      timezone: {
-        offset: string,
-        description: string
-      }
-    },
-    email: string,
-    login: {
-      uuid: string,
-      username: string,
-      password: string,
-      salt: string,
-      md5: string,
-      sha1: string,
-      sha256: string
-    },
-    dob: {
-      date: Date,
-      age: number
-    },
-    registered: {
-      date: Date,
-      age: number
-    },
-    phone: string,
-    cell: string,
-    id: {
-      name: string,
-      value: string
-    },
-    picture: {
-      large: string,
-      medium: string,
-      thumbnail: string,
-    },
-    nat: string
-  }
-
-  const [users, setUsers] = useState<User[]>([]);
+  const {users, isLoading} = useFetch('https://randomuser.me/api/?results=10');
   const [isOpen, setIsOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
 
-  useEffect(() => {
-    async function fetchData() {
-      const response = await axios.get('https://randomuser.me/api/?results=10');
-      if (response.status === 200) {
-        setUsers(response.data.results);
-      }   
-    }
-
-    fetchData();
-  }, []);
-
   function handleClick(target: string) {
     setCurrentUser(target);
-
+  
     if (isOpen) {
       setIsOpen(false);
     } else {
@@ -89,7 +22,15 @@ function App() {
   return (
     <>
       <h1>Random User</h1>
-      <section className='container'>
+
+      {isLoading ? 
+        <div className='center'>
+          <h3>Récupération les utilisateurs en cours...</h3>
+          <img className='logo logo-spin' src={logo} alt="loading" />
+        </div> 
+        :
+
+       <section className='container'>
         {users.map((user) => 
           <article key={user.email} className="card">
             <img className='profil-img' src={user.picture.medium} alt="" />
@@ -107,6 +48,7 @@ function App() {
           </article>
         )}
         </section>
+      }
     </>
   )
 }
